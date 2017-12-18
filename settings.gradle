@@ -1,0 +1,5 @@
+rootProject.name = 'tgbot'
+
+static void main(String[] args) {
+
+}

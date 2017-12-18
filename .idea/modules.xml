@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/tgbot.iml" filepath="$PROJECT_DIR$/.idea/modules/tgbot.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/tgbot_main.iml" filepath="$PROJECT_DIR$/.idea/modules/tgbot_main.iml" group="tgbot" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/tgbot_test.iml" filepath="$PROJECT_DIR$/.idea/modules/tgbot_test.iml" group="tgbot" />
+    </modules>
+  </component>
+</project>
