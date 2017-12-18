@@ -1,4 +1,3 @@
-import org.telegram.telegrambots.api.methods.send.SendAudio;
 import org.telegram.telegrambots.api.methods.send.SendMessage;
 import org.telegram.telegrambots.api.methods.send.SendPhoto;
 import org.telegram.telegrambots.api.objects.PhotoSize;
@@ -9,15 +8,24 @@ import org.telegram.telegrambots.api.objects.replykeyboard.ReplyKeyboardRemove;
 import org.telegram.telegrambots.api.objects.replykeyboard.buttons.KeyboardRow;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.exceptions.TelegramApiException;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.URL;
+import java.util.*;
+
+import static java.awt.Color.black;
+import static java.awt.SystemColor.text;
 
 
 public class mainBot extends TelegramLongPollingBot {
 
-
+    HashMap<String, String> cities = new HashMap();
     ArrayList<User> users = new ArrayList<>();
+    long колвоучастниов = 0;
+    long колвоЗапросовНаКонецКонкурса = 0;
 
 
     @Override
@@ -37,32 +45,68 @@ public class mainBot extends TelegramLongPollingBot {
 
            switch (сообщение) {
 
+               case "plsplaywithme":
+                   sendMessage("Хотите поиграть в города?", chatId);
+                   switch (update.getMessage().getText()) {
+                       case "Да":
+                           sendMessage("Ок, называйте город", chatId);
+                           addCity(chatId);
+                       default:
+                           sendMessage("Плак плак. Мне обидно. Я одинок. Никто не хочет со мной играть.", chatId);
+                   }
+
+
+                   break;
+
+
+
                case "plshelp":
                    sendHelp(chatId);
                    break;
 
 
                case "plsreg":
+                   колвоучастниов =+ 1;
                    User reg = update.getMessage().getFrom();
                    users.add(reg);
                    break;
 
 
                case "plsunreg":
+                   колвоучастниов =- 1;
                    User unreg = update.getMessage().getFrom();
                    users.remove(unreg);
-
                    break;
 
 
                case "plsresult":
+                   колвоЗапросовНаКонецКонкурса =+ 1;
                    int winnerid = (int) (Math.random()* users.size());
+
                    if (users.size() == 0) {
                        sendMessage("Никто не хочет играть со мной, *плач робота*. Если так продолжится, то я слом... бип буп бип бип", chatId);
-                   } else {
-                       sendMessage("Количество участников: " + users.size() + ". Победитель: пользователь №" + winnerid, chatId);
                    }
-                    users.clear();
+
+                   if (колвоЗапросовНаКонецКонкурса == колвоучастниов && колвоЗапросовНаКонецКонкурса > 1) {
+                       sendMessage("Количество участников: " + users.size() + ". Победитель: пользователь №" + winnerid, chatId);
+                       users.clear();
+                       sendMessage("Вы учавствуете одни. Вам не одиноко?", chatId);
+                   }
+                   break;
+
+               case "test":
+                   try {
+
+
+                       URL url = new URL("http://www.oddsportal.com/soccer/spain/primera-division/rayo-vallecano-valencia-d4LVsDnC/");
+                       InputStream is = url.openStream();
+                       BufferedReader reader = new BufferedReader(new InputStreamReader(is));
+                   } catch (IOException e) {
+                       e.printStackTrace();
+                   }
+
+
+
 
                    break;
 
@@ -266,29 +310,47 @@ public class mainBot extends TelegramLongPollingBot {
 
     private void sendHelp(long chatId) {
         SendMessage sendMessage = new SendMessage()
-                .setText("Привет." +
-                        "Вот список команд:" +
-                        "Конкурс - plsreg, plsunreg, plsresult" +
-                        "plsinfo - информация" +
-                        "plstime - точное время" +
-                        "plsmeme - отправить мемосик" +
-                        "Открыть кое-что - plskeyboard/plshidekeyboard - открыть/закрыть" +
-                        "" +
-                        "" +
-                        "Связь со мной: vk.com/tiiget" +
-                        "   Еще я в дискорде есть" +
-                        "   Но ладно." +
-                        "          Пока" +
-                        "               Пиши мне" +
-                        "                   Бзфф... биип... бзз, шшшш...")
+                .setText("Привет. " +
+                        "Вот список команд: " +
+                        "Какая-то хрень, кстати она не работает - plsreg, plsunreg, plsresult. " +
+                        "plsinfo - информация. " +
+                        "plstime - неточное время. " +
+                        "plsmeme - отправить мемосик. " +
+                        "Открыть/закрыть кое-что - plskeyboard/plshidekeyboard. " +
+                        " " +
+                        " " +
+                        "Связь со мной: vk.com/tiiget. Шутка. Я же бот, у меня нет вк. А у моего хозяина, величайшего програмиста всех времен, он есть." +
+                        "   Еще он в дискорде есть(если задонатите, то и я в дискорде появлюсь), " +
+                        "   Но ладно. " +
+                        "          Пока " +
+                        "               Пиши мне " +
+                        "                   Бзфф... биип... бзз, шшшш... ")
                 .setChatId(chatId);
+
+        try {
+            execute(sendMessage);
+        } catch (TelegramApiException e) {
+            e.printStackTrace();
+        }
     }
 
 
 
+    private void addCity (String text, long chatId) {
+        String[] кусочки = text.split(" ");
+        cities.put(кусочки[0], кусочки[1]);
+        sendMessage("Город добавлен", chatId);
+    }
 
+    private void getCities (long chatId) {
+        String result = "Города: \n";
+        sendMessage(cities.toString(),chatId);
+        for (Map.Entry<String, String> строчка : cities.entrySet()) {
+            result += строчка.getKey() + " - " + строчка.getValue();
+        }
 
-
+        sendMessage(result, chatId);
+    }
 
 
 }
